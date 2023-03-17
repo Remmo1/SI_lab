@@ -165,30 +165,6 @@ def reconstruct_path(came_from: dict[str, str], start: str, goal: str) -> \
     lines.append(goal)
     return path, lines
 
-
-def reconstruct_path_with_number_of_lines(came_from: dict[str, str], start: str, goal: str) -> \
-        (list[str], list[(str, datetime.time, datetime.time)], int):
-    current: str = goal
-    path: list[str] = []
-    lines: list[(str, datetime.time, datetime.time)] = []
-    if goal not in came_from:  # no path was found
-        return []
-
-    while current != start:
-        path.append(current)
-        current = came_from[current][0]
-        if current != start:
-            lines.append(came_from[current][1])
-
-    path.append(start)
-    path.reverse()
-
-    lines.append(start)
-    lines.reverse()
-    lines.append(goal)
-    return path, lines,
-
-
 if __name__ == '__main__':
     df = pd.read_csv(
         'connection_graph.csv',
@@ -280,9 +256,10 @@ if __name__ == '__main__':
     )
     end_time = time.time()
 
-    path, amount_of_lines = reconstruct_path_with_number_of_lines(came_from, values[0], values[1])
-    print(amount_of_lines)
-    # print(path[0])
-    # print(path[1])
-    # print(str(cost[values[1]] - 600 * amount_of_lines) + ' min')
-    # print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]')
+    path, lines = reconstruct_path(came_from, values[0], values[1])
+    amount_of_lines = len(list(set(map(lambda l: l[0], lines[1:len(lines) - 1]))))
+    print(path)
+    print(lines)
+    print('Czas przejazdu: ' + str(cost[values[1]] - 600 * amount_of_lines) + ' min')
+    print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]')
+    print('Ilość przesiadek: ' + str(amount_of_lines - 1))
