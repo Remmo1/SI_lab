@@ -1,20 +1,17 @@
 import datetime
 import heapq
 from re import T
+import time
 from typing import Optional
 
 import pandas as pd
 
 
-class SimpleGraph:
+class Graph:
     def __init__(self):
-        """
-        My Idea:
-                0       1       2           0       1      2        3       4           5       6/7     8/9
-            * (Stop, length, width) -> (EdgeId, Line, time_from, time_to, stop_start, stop_end, start/end width len)
-        """
         self.edges: dict[(str, str), (datetime.time, int, str, datetime.time)] = {}
         self.verticles: dict[str, list[str]] = {}
+        self.width_height: dict[str, (float, float)] = {}
 
     def neighbors(self, id: str) -> list[str]:
         return self.verticles[id]
@@ -25,6 +22,17 @@ class SimpleGraph:
         for e in self.edges[(from_stop, to_stop)]:
             if e[0] >= actual_time:
                 return e[1] - time_diff(actual_time, e[0]), (e[2], e[0], e[3])
+        return None
+
+    # Time cost in lines
+    def cost_lines(self, from_stop: str, to_stop: str, actual_time: datetime.time, line: str) -> \
+            (int, (str, datetime.time, datetime.time)):
+        for e in self.edges[(from_stop, to_stop)]:
+            if e[0] >= actual_time:
+                if e[2] == line:
+                    return e[1] - time_diff(actual_time, e[0]), (e[2], e[0], e[3])
+                else:
+                    return e[1] - time_diff(actual_time, e[0]) + 600, (e[2], e[0], e[3])
         return None
 
 
@@ -42,7 +50,16 @@ class PriorityQueue:
         return heapq.heappop(self.elements)[1]
 
 
-def dijkstra_search(graph: SimpleGraph, start: str, goal: str, actual_time: datetime.time):
+def heurisitc(graph, current, next):
+    try:
+        return \
+                abs(graph.width_height[current][0] - graph.width_height[next][0]) + \
+                abs(graph.width_height[current][1] - graph.width_height[next][1])
+    except KeyError:
+        return 0.0
+
+
+def a_star_time(graph: Graph, start: str, goal: str, actual_time: datetime.time):
     frontier = PriorityQueue()
     frontier.put(start, 0)
 
@@ -73,7 +90,7 @@ def dijkstra_search(graph: SimpleGraph, start: str, goal: str, actual_time: date
 
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
-                priority = new_cost
+                priority = new_cost + heurisitc(graph, current, next)
                 frontier.put(next, priority)
                 came_from[next] = current, cost_with_route[1]
                 time_so_far[next] = cost_with_route[1][2]
@@ -81,17 +98,7 @@ def dijkstra_search(graph: SimpleGraph, start: str, goal: str, actual_time: date
     return came_from, cost_so_far
 
 
-def heurisitc(by_time, cost_with_route, line_so_far):
-    if by_time:
-        return cost_with_route[0]
-    else:
-        if cost_with_route[1][0] != line_so_far:
-            return cost_with_route[0] + 60
-        else:
-            return cost_with_route[0]
-
-
-def a_star(graph: SimpleGraph, start: str, goal: str, actual_time: datetime.time, by_time: bool):
+def a_star_lines(graph: Graph, start: str, goal: str, actual_time: datetime.time):
     frontier = PriorityQueue()
     frontier.put(start, 0)
 
@@ -117,20 +124,24 @@ def a_star(graph: SimpleGraph, start: str, goal: str, actual_time: datetime.time
             continue
 
         for next in graph.neighbors(current):
-            cost_with_route = graph.cost_time(current, next, time_so_far[current])
+            cost_with_route = graph.cost_lines(current, next, time_so_far[current], line_so_far[current])
             if cost_with_route is None:
                 continue
             new_cost = cost_so_far[current] + cost_with_route[0]
 
             if next not in cost_so_far or new_cost < cost_so_far[next]:
                 cost_so_far[next] = new_cost
-                priority = new_cost + heurisitc(by_time, cost_with_route, line_so_far[current])
+                priority = new_cost + heurisitc(graph, current, next)
                 frontier.put(next, priority)
                 came_from[next] = current, cost_with_route[1]
                 time_so_far[next] = cost_with_route[1][2]
                 line_so_far[next] = cost_with_route[1][0]
 
     return came_from, cost_so_far
+
+
+def time_diff(to_time, from_time):
+    return (to_time.hour * 60 + to_time.minute) - (from_time.hour * 60 + from_time.minute)
 
 
 def reconstruct_path(came_from: dict[str, str], start: str, goal: str) -> \
@@ -155,8 +166,27 @@ def reconstruct_path(came_from: dict[str, str], start: str, goal: str) -> \
     return path, lines
 
 
-def time_diff(to_time, from_time):
-    return (to_time.hour * 60 + to_time.minute) - (from_time.hour * 60 + from_time.minute)
+def reconstruct_path_with_number_of_lines(came_from: dict[str, str], start: str, goal: str) -> \
+        (list[str], list[(str, datetime.time, datetime.time)], int):
+    current: str = goal
+    path: list[str] = []
+    lines: list[(str, datetime.time, datetime.time)] = []
+    if goal not in came_from:  # no path was found
+        return []
+
+    while current != start:
+        path.append(current)
+        current = came_from[current][0]
+        if current != start:
+            lines.append(came_from[current][1])
+
+    path.append(start)
+    path.reverse()
+
+    lines.append(start)
+    lines.reverse()
+    lines.append(goal)
+    return path, lines,
 
 
 if __name__ == '__main__':
@@ -178,15 +208,19 @@ if __name__ == '__main__':
         [10, 11] - width / height end stop 
     """
 
-    city_map = SimpleGraph()
+    city_map = Graph()
 
     for row in df.values:
         stop_from = str(row[6]).lower()
+        from_w_h = row[8], row[9]
+
         stop_to = str(row[7]).lower()
+
         if stop_from in city_map.verticles.keys():
             city_map.verticles[stop_from].append(stop_to)
         else:
             city_map.verticles[stop_from] = [stop_to]
+            city_map.width_height[stop_from] = from_w_h
 
         edge = row[4], time_diff(row[5], row[4]), row[3], row[5]
         if (stop_from, stop_to) in city_map.edges.keys():
@@ -211,54 +245,44 @@ if __name__ == '__main__':
         r.sort(key=lambda x: x[0])
 
     """
-        Exercise 1 - Dijkstra algorithm by time
+        Exercise 2 - A* algorithm by time
     """
+    start_time = time.time()
 
     values = ('grota-roweckiego', 'pl. grunwaldzki', datetime.time(12, 15, 0))
 
-    came_from, cost = dijkstra_search(
+    came_from, cost = a_star_time(
         city_map,
         values[0],
         values[1],
         values[2]
     )
+    end_time = time.time()
 
     path = reconstruct_path(came_from, values[0], values[1])
     print(path[0])
     print(path[1])
     print(str(cost[values[1]]) + ' min')
-    #
-    # """
-    #     Exercise 2 - A* algorithm by time
-    # """
-    # print("\n =================================== ")
-    # came_from, cost = a_star(
-    #     city_map,
-    #     values[0],
-    #     values[1],
-    #     values[2],
-    #     True
-    # )
-    #
-    # path = reconstruct_path(came_from, values[0], values[1])
-    # print(path[0])
-    # print(path[1])
-    # print(str(cost[values[1]]) + ' min')
-    #
-    # """
-    #     Exercise 3 - A* algorithm by line
-    # """
-    # print("\n=================================== ")
-    # came_from, cost = a_star(
-    #     city_map,
-    #     values[0],
-    #     values[1],
-    #     values[2],
-    #     False
-    # )
-    #
-    # path = reconstruct_path(came_from, values[0], values[1])
-    # print(path[0])
-    # print(path[1])
-    # print(str(cost[values[1]]) + ' min')
+    print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]')
 
+    """
+            Exercise 3 - A* algorithm by lines
+    """
+    start_time = time.time()
+
+    values = ('grota-roweckiego', 'pl. grunwaldzki', datetime.time(16, 18, 0))
+
+    came_from, cost = a_star_lines(
+        city_map,
+        values[0],
+        values[1],
+        values[2]
+    )
+    end_time = time.time()
+
+    path, amount_of_lines = reconstruct_path_with_number_of_lines(came_from, values[0], values[1])
+    print(amount_of_lines)
+    # print(path[0])
+    # print(path[1])
+    # print(str(cost[values[1]] - 600 * amount_of_lines) + ' min')
+    # print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]')
