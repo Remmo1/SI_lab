@@ -6,6 +6,30 @@ from typing import Optional
 
 import pandas as pd
 
+"""
+    Time improvment for searching in B
+    for loop        = 3,21 [s]
+    binary search   = 1,04 [s]
+"""
+
+
+def binary_search(arr, low, high, x):
+    if high >= low:
+        mid = (high + low) // 2
+        if arr[mid][0] == x:
+            return mid
+        elif arr[mid][0] > x:
+            return binary_search(arr, low, mid - 1, x)
+        else:
+            return binary_search(arr, mid + 1, high, x)
+    else:
+        if low >= len(arr):
+            return -1
+        if arr[low][0] > x:
+            return low
+        else:
+            return -1
+
 
 class Graph:
     def __init__(self):
@@ -16,13 +40,25 @@ class Graph:
     def neighbors(self, id: str) -> list[str]:
         return self.verticles[id]
 
-    # Time cost in minutes
+    """
+        Time cost in minutes
+        Fast version, exercise 1D
+    """
+
     def cost_time(self, from_stop: str, to_stop: str, actual_time: datetime.time) -> \
             (int, (str, datetime.time, datetime.time)):
-        for e in self.edges[(from_stop, to_stop)]:
-            if e[0] >= actual_time:
-                return e[1] - time_diff(actual_time, e[0]), (e[2], e[0], e[3])
-        return None
+        all_edges = self.edges[from_stop, to_stop]
+        index = binary_search(
+            all_edges,
+            0,
+            len(all_edges) - 1,
+            actual_time
+        )
+        if index != -1:
+            e = all_edges[index]
+            return e[1] - time_diff(actual_time, e[0]), (e[2], e[0], e[3])
+        else:
+            return None
 
     # Time cost in lines
     def cost_lines(self, from_stop: str, to_stop: str, actual_time: datetime.time, line: str) -> \
@@ -164,6 +200,7 @@ def reconstruct_path(came_from: dict[str, str], start: str, goal: str) -> \
     lines.reverse()
     lines.append(goal)
     return path, lines
+
 
 if __name__ == '__main__':
     df = pd.read_csv(

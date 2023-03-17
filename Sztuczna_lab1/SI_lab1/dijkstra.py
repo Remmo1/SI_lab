@@ -15,7 +15,10 @@ class SimpleGraph:
     def neighbors(self, id: str) -> list[str]:
         return self.verticles[id]
 
-    # Time cost in minutes
+    """
+        Time cost in minutes
+        Slow verison (checking in for loop)
+    """
     def cost_time(self, from_stop: str, to_stop: str, actual_time: datetime.time) -> \
             (int, (str, datetime.time, datetime.time)):
         for e in self.edges[(from_stop, to_stop)]:
