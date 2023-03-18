@@ -1,4 +1,6 @@
 import heapq
+import itertools
+import math
 from datetime import datetime
 from re import T
 from typing import Optional
@@ -26,6 +28,7 @@ class Graph:
         for loop        = 0,67 [s]
         binary search   = 0,24 [s]
     """
+
     def cost_time(self, from_stop: str, to_stop: str, actual_time: datetime.time) -> \
             (int, (str, datetime.time, datetime.time)):
         all_edges = self.edges[from_stop, to_stop]
@@ -50,6 +53,7 @@ class Graph:
         for loop        = 0,51 [s]
         binary search   = 0,14 [s]
     """
+
     def cost_lines(self, from_stop: str, to_stop: str, actual_time: datetime.time, line: str) -> \
             (int, (str, datetime.time, datetime.time)):
         all_edges = self.edges[from_stop, to_stop]
@@ -139,9 +143,8 @@ def reconstruct_path(came_from: dict[str, str], start: str, goal: str) -> \
     path.append(start)
     path.reverse()
 
-    lines.append(start)
     lines.reverse()
-    lines.append(goal)
+    lines.append(came_from[goal][1])
     return path, lines
 
 
@@ -276,3 +279,71 @@ def a_star_lines(graph: Graph, start: str, goal: str, actual_time: datetime.time
                 line_so_far[next] = cost_with_route[1][0]
 
     return came_from, cost_so_far
+
+
+"""
+    Exercise 2
+    a) Tabu search without limits
+"""
+
+
+def find_solution_time(graph: Graph, start: str, goals: list[str], actual_time: datetime.time):
+    actual = start
+    now_time = actual_time
+    for stop in goals:
+        came_from, cost = a_star_time(graph, actual, stop, now_time)
+        path, lines = reconstruct_path(came_from, actual, stop)
+        print(str(path) + ' ==== ' + str(lines))
+        actual = stop
+        now_time = lines[len(lines) - 2][2]
+
+    came_from_start, cost = a_star_time(graph, actual, start, now_time)
+    path_back, lines = reconstruct_path(came_from_start, actual, start)
+    now_time = lines[len(lines) - 2][2]
+
+    result = time_diff(now_time, actual_time)
+    print(str(path_back) + ' ==== ' + str(lines))
+    print('Solution time: ' + str(result) + '\n')
+    return result
+
+
+def find_solution_lines(graph: Graph, start: str, goals: list[str], actual_time: datetime.time):
+    actual = start
+    now_time = actual_time
+    for stop in goals:
+        came_from, cost = a_star_lines(graph, actual, stop, now_time)
+        path, lines = reconstruct_path(came_from, actual, stop)
+        print(str(path) + ' ==== ' + str(lines))
+        actual = stop
+        now_time = lines[len(lines) - 2][2]
+
+    came_from_start, cost = a_star_lines(graph, actual, start, now_time)
+    path_back, lines = reconstruct_path(came_from_start, actual, start)
+    now_time = lines[len(lines) - 2][2]
+
+    result = time_diff(now_time, actual_time)
+    print(str(path_back) + ' ==== ' + str(lines))
+    print('Solution lines: ' + result + '\n')
+    return result
+
+
+def tabu_search_without_limits(graph: Graph, start: str, goals: list[str], actual_time: datetime.time, by_time: bool):
+
+    best_cost = math.inf
+    best_route = []
+    tabu_solutions = []
+    possibilities = list(itertools.permutations(goals, len(goals)))
+
+    for route in possibilities:
+        if by_time:
+            actual_solution = find_solution_time(graph, start, list(route), actual_time)
+        else:
+            actual_solution = find_solution_lines(graph, start, list(route), actual_time)
+
+        if actual_solution < best_cost:
+            best_cost = actual_solution
+            best_route = route
+
+        tabu_solutions.append(route)
+
+    return best_route
