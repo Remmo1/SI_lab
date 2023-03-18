@@ -1,206 +1,9 @@
 import datetime
-import heapq
-from re import T
 import time
-from typing import Optional
 
 import pandas as pd
 
-"""
-    Time improvment for searching in B
-    for loop        = 3,21 [s]
-    binary search   = 1,04 [s]
-"""
-
-
-def binary_search(arr, low, high, x):
-    if high >= low:
-        mid = (high + low) // 2
-        if arr[mid][0] == x:
-            return mid
-        elif arr[mid][0] > x:
-            return binary_search(arr, low, mid - 1, x)
-        else:
-            return binary_search(arr, mid + 1, high, x)
-    else:
-        if low >= len(arr):
-            return -1
-        if arr[low][0] > x:
-            return low
-        else:
-            return -1
-
-
-class Graph:
-    def __init__(self):
-        self.edges: dict[(str, str), (datetime.time, int, str, datetime.time)] = {}
-        self.verticles: dict[str, list[str]] = {}
-        self.width_height: dict[str, (float, float)] = {}
-
-    def neighbors(self, id: str) -> list[str]:
-        return self.verticles[id]
-
-    """
-        Time cost in minutes
-        Fast version, exercise 1D
-    """
-
-    def cost_time(self, from_stop: str, to_stop: str, actual_time: datetime.time) -> \
-            (int, (str, datetime.time, datetime.time)):
-        all_edges = self.edges[from_stop, to_stop]
-        index = binary_search(
-            all_edges,
-            0,
-            len(all_edges) - 1,
-            actual_time
-        )
-        if index != -1:
-            e = all_edges[index]
-            return e[1] - time_diff(actual_time, e[0]), (e[2], e[0], e[3])
-        else:
-            return None
-
-    # Time cost in lines
-    def cost_lines(self, from_stop: str, to_stop: str, actual_time: datetime.time, line: str) -> \
-            (int, (str, datetime.time, datetime.time)):
-        for e in self.edges[(from_stop, to_stop)]:
-            if e[0] >= actual_time:
-                if e[2] == line:
-                    return e[1] - time_diff(actual_time, e[0]), (e[2], e[0], e[3])
-                else:
-                    return e[1] - time_diff(actual_time, e[0]) + 600, (e[2], e[0], e[3])
-        return None
-
-
-class PriorityQueue:
-    def __init__(self):
-        self.elements: list[tuple[float, T]] = []
-
-    def empty(self) -> bool:
-        return not self.elements
-
-    def put(self, item: T, priority: float):
-        heapq.heappush(self.elements, (priority, item))
-
-    def get(self) -> T:
-        return heapq.heappop(self.elements)[1]
-
-
-def heurisitc(graph, current, next):
-    try:
-        return \
-                abs(graph.width_height[current][0] - graph.width_height[next][0]) + \
-                abs(graph.width_height[current][1] - graph.width_height[next][1])
-    except KeyError:
-        return 0.0
-
-
-def a_star_time(graph: Graph, start: str, goal: str, actual_time: datetime.time):
-    frontier = PriorityQueue()
-    frontier.put(start, 0)
-
-    came_from: dict[str, (Optional[str], (str, datetime.time))] = {}
-    cost_so_far: dict[str, float] = {}
-    time_so_far: dict[str, datetime.time] = {}
-
-    came_from[start] = None
-    cost_so_far[start] = 0
-    time_so_far[start] = actual_time
-
-    while not frontier.empty():
-        current: str = frontier.get()
-
-        if current == goal:
-            break
-
-        try:
-            graph.neighbors(current)
-        except KeyError:
-            continue
-
-        for next in graph.neighbors(current):
-            cost_with_route = graph.cost_time(current, next, time_so_far[current])
-            if cost_with_route is None:
-                continue
-            new_cost = cost_so_far[current] + cost_with_route[0]
-
-            if next not in cost_so_far or new_cost < cost_so_far[next]:
-                cost_so_far[next] = new_cost
-                priority = new_cost + heurisitc(graph, current, next)
-                frontier.put(next, priority)
-                came_from[next] = current, cost_with_route[1]
-                time_so_far[next] = cost_with_route[1][2]
-
-    return came_from, cost_so_far
-
-
-def a_star_lines(graph: Graph, start: str, goal: str, actual_time: datetime.time):
-    frontier = PriorityQueue()
-    frontier.put(start, 0)
-
-    came_from: dict[str, (Optional[str], (str, datetime.time))] = {}
-    cost_so_far: dict[str, float] = {}
-    time_so_far: dict[str, datetime.time] = {}
-    line_so_far: dict[str, str] = {}
-
-    came_from[start] = None
-    cost_so_far[start] = 0
-    time_so_far[start] = actual_time
-    line_so_far[start] = ""
-
-    while not frontier.empty():
-        current: str = frontier.get()
-
-        if current == goal:
-            break
-
-        try:
-            graph.neighbors(current)
-        except KeyError:
-            continue
-
-        for next in graph.neighbors(current):
-            cost_with_route = graph.cost_lines(current, next, time_so_far[current], line_so_far[current])
-            if cost_with_route is None:
-                continue
-            new_cost = cost_so_far[current] + cost_with_route[0]
-
-            if next not in cost_so_far or new_cost < cost_so_far[next]:
-                cost_so_far[next] = new_cost
-                priority = new_cost + heurisitc(graph, current, next)
-                frontier.put(next, priority)
-                came_from[next] = current, cost_with_route[1]
-                time_so_far[next] = cost_with_route[1][2]
-                line_so_far[next] = cost_with_route[1][0]
-
-    return came_from, cost_so_far
-
-
-def time_diff(to_time, from_time):
-    return (to_time.hour * 60 + to_time.minute) - (from_time.hour * 60 + from_time.minute)
-
-
-def reconstruct_path(came_from: dict[str, str], start: str, goal: str) -> \
-        (list[str], list[(str, datetime.time, datetime.time)]):
-    current: str = goal
-    path: list[str] = []
-    lines: list[(str, datetime.time, datetime.time)] = []
-    if goal not in came_from:  # no path was found
-        return []
-
-    while current != start:
-        path.append(current)
-        current = came_from[current][0]
-        if current != start:
-            lines.append(came_from[current][1])
-    path.append(start)
-    path.reverse()
-
-    lines.append(start)
-    lines.reverse()
-    lines.append(goal)
-    return path, lines
-
+from structures_functions import Graph, time_diff, a_star_time, reconstruct_path, a_star_lines
 
 if __name__ == '__main__':
     df = pd.read_csv(
@@ -218,7 +21,7 @@ if __name__ == '__main__':
         [4, 5] - time from /to
         [6, 7] - start / end stop
         [8, 9] - width / height start stop
-        [10, 11] - width / height end stop 
+        [10, 11] - width / height end stop
     """
 
     city_map = Graph()
@@ -276,7 +79,7 @@ if __name__ == '__main__':
     print(path[0])
     print(path[1])
     print(str(cost[values[1]]) + ' min')
-    print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]')
+    print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]\n\n')
 
     """
             Exercise 3 - A* algorithm by lines
