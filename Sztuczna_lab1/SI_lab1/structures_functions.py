@@ -327,23 +327,70 @@ def find_solution_lines(graph: Graph, start: str, goals: list[str], actual_time:
     return result
 
 
-def tabu_search_without_limits(graph: Graph, start: str, goals: list[str], actual_time: datetime.time, by_time: bool):
+def get_best_neighbour_without_limits(
+        graph: Graph,
+        start: str, goals: list[str],
+        tabu_history, tabu_limit: int, aspiration: int,
+        actual_time: datetime.time,
+        by_time: bool
+):
+    best_neighbour = None
+    best_neighbour_cost = math.inf
 
-    best_cost = math.inf
-    best_route = []
-    tabu_solutions = []
     possibilities = list(itertools.permutations(goals, len(goals)))
-
     for route in possibilities:
+
+        # Take a route and decide which cost
         if by_time:
             actual_solution = find_solution_time(graph, start, list(route), actual_time)
         else:
             actual_solution = find_solution_lines(graph, start, list(route), actual_time)
 
-        if actual_solution < best_cost:
-            best_cost = actual_solution
-            best_route = route
+        # This route is tabu
+        if route in tabu_history:
+            if tabu_history[route] > 0:
+                continue
 
-        tabu_solutions.append(route)
+        if actual_solution < best_neighbour_cost:
+            best_neighbour_cost = actual_solution
+            best_neighbour = route
+            tabu_history[best_neighbour] = tabu_limit
 
-    return best_route
+    return best_neighbour, best_neighbour_cost
+
+
+def tabu_search_without_limits(
+    graph: Graph,
+    start, goals, actual_time,
+    num_iter,
+    tabu_limit, tabu_history, aspiration,
+    by_time
+):
+    best_solution = goals
+    if by_time:
+        best_cost = find_solution_time(graph, start, best_solution, actual_time)
+    else:
+        best_cost = find_solution_lines(graph, start, best_solution, actual_time)
+    states = [best_cost]
+
+    historical_best = best_solution
+    historical_best_cost = best_cost
+
+    for _ in range(num_iter):
+        # Reduce counter for all tabu
+        for x in tabu_history:
+            tabu_history[x] -= 1
+        tabu_history = {x: tabu_history[x] for x in tabu_history if tabu_history[x] > 0}
+
+        best_solution, best_cost = get_best_neighbour_without_limits(
+            graph,
+            start, goals,
+            tabu_history, tabu_limit, aspiration,
+            actual_time, by_time
+        )
+
+        if best_cost <= historical_best_cost:
+            historical_best = best_solution
+            historical_best_cost = best_cost
+        states.append(best_cost)
+    return historical_best, historical_best_cost, states

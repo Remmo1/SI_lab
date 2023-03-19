@@ -1,4 +1,5 @@
 import datetime
+import itertools
 
 import pandas as pd
 
@@ -64,12 +65,11 @@ if __name__ == '__main__':
         Exercise 1:
         Tabu search without limits (take every possible path)
     """
-
     best_route = tabu_search_without_limits(
         city_map,
-        'kurpiów',
-        ['krzyki', 'dworzec główny', 'przyjaźni'],
+        'kurpiów', ['krzyki', 'dworzec główny', 'przyjaźni'],
         datetime.time(12, 15, 00),
+        3, 3, {}, 2,
         True
     )
     print('Best: ' + str(best_route))
