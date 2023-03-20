@@ -71,8 +71,15 @@ if __name__ == '__main__':
     )
     end_time = time.time()
 
-    path = reconstruct_path(came_from, values[0], values[1])
-    print(path[0])
-    print(path[1])
-    print(str(cost[values[1]]) + ' min')
-    print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]')
+    stops, lines = reconstruct_path(came_from, values[0], values[1])
+    result = zip(stops, lines)
+
+    print("Route")
+    for route_part in result:
+        print('      - ' + str(route_part))
+
+    print('Czas przejazdu: ' + str(cost[values[1]]) + ' [min]')
+    print('Czas działania programu: ' + str(round(end_time - start_time, 2)) + ' [s]')
+
+
+
