@@ -75,11 +75,15 @@ if __name__ == '__main__':
     )
     end_time = time.time()
 
-    path = reconstruct_path(came_from, values[0], values[1])
-    print(path[0])
-    print(path[1])
-    print(str(cost[values[1]]) + ' min')
-    print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]\n\n')
+    stops, lines = reconstruct_path(came_from, values[0], values[1])
+    result = zip(stops, lines)
+
+    print("Route")
+    for route_part in result:
+        print('      - ' + str(route_part))
+
+    print('Czas przejazdu: ' + str(cost[values[1]]) + ' [min]')
+    print('Czas działania programu: ' + str(round(end_time - start_time, 2)) + ' [s]\n')
 
     """
             Exercise 3 - A* algorithm by lines
@@ -96,10 +100,14 @@ if __name__ == '__main__':
     )
     end_time = time.time()
 
-    path, lines = reconstruct_path(came_from, values[0], values[1])
+    stops, lines = reconstruct_path(came_from, values[0], values[1])
     amount_of_lines = len(list(set(map(lambda l: l[0], lines[1:len(lines) - 1]))))
-    print(path)
-    print(lines)
+    result = zip(stops, lines)
+
+    print("Route")
+    for route_part in result:
+        print('      - ' + str(route_part))
+
     print('Czas przejazdu: ' + str(cost[values[1]] - 600 * amount_of_lines) + ' min')
     print('Czas działania ' + str(round(end_time - start_time, 2)) + ' [s]')
     print('Ilość przesiadek: ' + str(amount_of_lines - 1))
