@@ -349,7 +349,8 @@ def get_best_neighbour_without_limits(
         # This route is tabu
         if route in tabu_history:
             if tabu_history[route] > 0:
-                continue
+                if tabu_history[route] > aspiration:
+                    continue
 
         if actual_solution < best_neighbour_cost:
             best_neighbour_cost = actual_solution
