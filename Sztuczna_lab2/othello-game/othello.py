@@ -3,7 +3,7 @@ import random
 import score
 import turtle
 
-from algorithms import min_max
+from algorithms import min_max, alfa_beta
 from board import Board
 from heuristics import more_tiles
 
@@ -13,7 +13,8 @@ from heuristics import more_tiles
 MOVE_DIRS = [(-1, -1), (-1, 0), (-1, +1),
              (0, -1), (0, +1),
              (+1, -1), (+1, 0), (+1, +1)]
-DEPTH = 100000
+DEPTH = 3
+
 
 class Othello(Board):
     """ Othello class.
@@ -283,11 +284,18 @@ class Othello(Board):
                 print('Computer\'s turn.')
 
                 # Min Max algorithm
-                best_move, best_score = min_max(copy.deepcopy(self), self.current_player, DEPTH, more_tiles)
-                self.move = best_move
-                # print(nodes_visited)
+                best_move, best_score, amount_of_nodes = min_max(
+                    copy.deepcopy(self), self.current_player, DEPTH, more_tiles
+                )
 
-                #self.make_random_move()
+                # Alfa Beta algorithm
+                # best_move, best_score, amount_of_nodes = alfa_beta(
+                #         copy.deepcopy(self), self.current_player, DEPTH, more_tiles
+                # )
+                self.move = best_move
+                print('Nodes searched: ' + str(amount_of_nodes))
+
+                # self.make_random_move()
                 self.make_move()
 
                 self.current_player = 0
