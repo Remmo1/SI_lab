@@ -14,7 +14,7 @@ def min_max(board, player, depth, heuristic, nodes_visited=0):
         for move in moves:
             board.move = move
             board.make_move_without_drawing()
-            # board.current_player = change_player(player)
+
             some_move, score, nodes = min_max(board, change_player(player), depth - 1, heuristic, nodes_visited)
             if score > best_score:
                 best_move = move
@@ -27,8 +27,8 @@ def min_max(board, player, depth, heuristic, nodes_visited=0):
         for move in moves:
             board.move = move
             board.make_move_without_drawing()
-            # board.current_player = change_player(player)
-            some_move, score, nodes = min_max(board, change_player(player), depth - 1, heuristic, nodes_visited)
+
+            some_move, score, nodes = min_max(board, change_player(player), depth - 1, heuristic)
             if score < best_score:
                 best_move = move
                 best_score = score
@@ -52,8 +52,9 @@ def alfa_beta(board, player, depth, heuristic, alpha=float('-inf'), beta=float('
         for move in moves:
             board.move = move
             board.make_move_without_drawing()
+            board.current_player = change_player(player)
             some_move, score, nodes = alfa_beta(
-                board, change_player(player), depth - 1, heuristic, alpha, beta, nodes_visited
+                board, change_player(player), depth - 1, heuristic, alpha, beta
             )
             if score > best_score:
                 best_move = move
@@ -72,8 +73,9 @@ def alfa_beta(board, player, depth, heuristic, alpha=float('-inf'), beta=float('
         for move in moves:
             board.move = move
             board.make_move_without_drawing()
+            board.current_player = change_player(player)
             some_move, score, nodes = alfa_beta(
-                board, change_player(player), depth - 1, heuristic, alpha, beta, nodes_visited
+                board, change_player(player), depth - 1, heuristic, alpha, beta
             )
             if score < best_score:
                 best_move = move

@@ -5,7 +5,7 @@ import turtle
 
 from algorithms import min_max, alfa_beta
 from board import Board
-from heuristics import more_tiles
+from heuristics import more_tiles, reach_corner, tiles_and_corners
 
 # Define all the possible directions in which a player's move can flip 
 # their adversary's tiles as constant (0 – the current row/column, 
@@ -86,7 +86,7 @@ class Othello(Board):
         """ Method: make_mov_without_drawing
             Parameters: self
             Returns: nothing
-            Does: Draws a tile for the player's next legal move on the
+            Does: Counts a tile for the player's next legal move on the
                   board and flips the adversary's tiles. Also, updates the
                   state of the board (1 for black tiles and 2 for white
                   tiles), and increases the number of tiles of the current
@@ -124,7 +124,7 @@ class Othello(Board):
                         i += 1
 
     def flip_tiles_without_drawing(self):
-        """ Method: flip_tiles
+        """ Method: flip_tiles_without_drawing
             Parameters: self
             Returns: nothing
             Does: Flips the adversary's tiles for current move. Also,
@@ -215,8 +215,7 @@ class Othello(Board):
 
                   About input: move is a tuple of coordinates (row, col).
         """
-        if move != () and self.is_valid_coord(move[0], move[1]) \
-                and self.board[move[0]][move[1]] == 0:
+        if move != () and self.is_valid_coord(move[0], move[1]) and self.board[move[0]][move[1]] == 0:
             for direction in MOVE_DIRS:
                 if self.has_tile_to_flip(move, direction):
                     return True
@@ -284,16 +283,19 @@ class Othello(Board):
                 print('Computer\'s turn.')
 
                 # Min Max algorithm
-                best_move, best_score, amount_of_nodes = min_max(
-                    copy.deepcopy(self), self.current_player, DEPTH, more_tiles
-                )
+                # best_move, best_score, amount_of_nodes = min_max(
+                #     copy.deepcopy(self), self.current_player, DEPTH, tiles_and_corners
+                # )
 
                 # Alfa Beta algorithm
-                # best_move, best_score, amount_of_nodes = alfa_beta(
-                #         copy.deepcopy(self), self.current_player, DEPTH, more_tiles
-                # )
+                best_move, best_score, amount_of_nodes = alfa_beta(
+                        copy.deepcopy(self), self.current_player, DEPTH, tiles_and_corners
+                )
+
                 self.move = best_move
-                print('Nodes searched: ' + str(amount_of_nodes))
+                tiles_nodes = 'Nodes searched: ' + str(amount_of_nodes) + "; Tiles on board: " + str(
+                    self.num_tiles[0] + self.num_tiles[1] + 1)
+                print(tiles_nodes)
 
                 # self.make_random_move()
                 self.make_move()
