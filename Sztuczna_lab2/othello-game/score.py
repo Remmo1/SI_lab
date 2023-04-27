@@ -1,11 +1,4 @@
 '''
-    Siyan
-    CS5001
-    Fall 2018
-    November 30, 2018
-'''
-
-'''
 This module contains score-related functions used by Othello game
 '''
 

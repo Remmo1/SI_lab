@@ -1,5 +1,7 @@
 import copy
 import random
+import time
+
 import score
 import turtle
 
@@ -280,7 +282,8 @@ class Othello(Board):
         while True:
             self.current_player = 1
             if self.has_legal_move():
-                print('Computer\'s turn.')
+                print('Computer\'s thinking...')
+                time.sleep(1)
 
                 # Min Max algorithm
                 # best_move, best_score, amount_of_nodes = min_max(

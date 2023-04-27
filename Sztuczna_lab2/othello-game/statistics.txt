@@ -1,67 +1,67 @@
 MIN_MAX:
-Nodes searched: 155; Tiles on board: 6
-Nodes searched: 283; Tiles on board: 8
-Nodes searched: 283; Tiles on board: 10
-Nodes searched: 531; Tiles on board: 12
-Nodes searched: 268287; Tiles on board: 14
-Nodes searched: 265471; Tiles on board: 16
-Nodes searched: 9215; Tiles on board: 18
-Nodes searched: 2495; Tiles on board: 20
-Nodes searched: 4239; Tiles on board: 22
-Nodes searched: 16671; Tiles on board: 24
-Nodes searched: 267263; Tiles on board: 26
-Nodes searched: 133631; Tiles on board: 28
-Nodes searched: 267775; Tiles on board: 30
-Nodes searched: 136703; Tiles on board: 32
-Nodes searched: 529919; Tiles on board: 34
-Nodes searched: 2110463; Tiles on board: 36
-Nodes searched: 265471; Tiles on board: 38
-Nodes searched: 136191; Tiles on board: 40
-Nodes searched: 267775; Tiles on board: 42
-Nodes searched: 71679; Tiles on board: 44
-Nodes searched: 38399; Tiles on board: 46
-Nodes searched: 35327; Tiles on board: 48
-Nodes searched: 16959; Tiles on board: 50
-Nodes searched: 2559; Tiles on board: 52
-Nodes searched: 34047; Tiles on board: 54
-Nodes searched: 4671; Tiles on board: 56
-Nodes searched: 191; Tiles on board: 58
-Nodes searched: 51; Tiles on board: 60
-Nodes searched: 31; Tiles on board: 62
-Nodes searched: 9; Tiles on board: 63
-Nodes searched: 3; Tiles on board: 64
+Nodes searched:,155,Tiles on board,6
+Nodes searched,283,Tiles on board,8
+Nodes searched,283,Tiles on board,10
+Nodes searched,531,Tiles on board,12
+Nodes searched,268287,Tiles on board,14
+Nodes searched,265471,Tiles on board,16
+Nodes searched,9215,Tiles on board,18
+Nodes searched,2495,Tiles on board,20
+Nodes searched,4239,Tiles on board,22
+Nodes searched,16671,Tiles on board,24
+Nodes searched,267263,Tiles on board,26
+Nodes searched,133631,Tiles on board,28
+Nodes searched,267775,Tiles on board,30
+Nodes searched,136703,Tiles on board,32
+Nodes searched,529919,Tiles on board,34
+Nodes searched,2110463,Tiles on board,36
+Nodes searched,265471,Tiles on board,38
+Nodes searched,136191,Tiles on board,40
+Nodes searched,267775,Tiles on board,42
+Nodes searched,71679,Tiles on board,44
+Nodes searched,38399,Tiles on board,46
+Nodes searched,35327,Tiles on board,48
+Nodes searched,16959,Tiles on board,50
+Nodes searched,2559,Tiles on board,52
+Nodes searched,34047,Tiles on board,54
+Nodes searched,4671,Tiles on board,56
+Nodes searched,191,Tiles on board,58
+Nodes searched,51,Tiles on board,60
+Nodes searched,31,Tiles on board,62
+Nodes searched,9,Tiles on board,63
+Nodes searched,3,Tiles on board,64
 
 ALFA_BETA:
-Nodes searched: 166; Tiles on board: 6
-Nodes searched: 135; Tiles on board: 8
-Nodes searched: 199; Tiles on board: 10
-Nodes searched: 156; Tiles on board: 12
-Nodes searched: 157; Tiles on board: 14
-Nodes searched: 157; Tiles on board: 16
-Nodes searched: 128; Tiles on board: 18
-Nodes searched: 144; Tiles on board: 20
-Nodes searched: 116; Tiles on board: 22
-Nodes searched: 151; Tiles on board: 24
-Nodes searched: 129; Tiles on board: 26
-Nodes searched: 86; Tiles on board: 28
-Nodes searched: 84; Tiles on board: 30
-Nodes searched: 86; Tiles on board: 32
-Nodes searched: 90; Tiles on board: 34
-Nodes searched: 92; Tiles on board: 36
-Nodes searched: 86; Tiles on board: 38
-Nodes searched: 71; Tiles on board: 40
-Nodes searched: 53; Tiles on board: 42
-Nodes searched: 22; Tiles on board: 44
-Nodes searched: 28; Tiles on board: 46
-Nodes searched: 34; Tiles on board: 48
-Nodes searched: 42; Tiles on board: 50
-Nodes searched: 24; Tiles on board: 52
-Nodes searched: 34; Tiles on board: 54
-Nodes searched: 24; Tiles on board: 56
-Nodes searched: 15; Tiles on board: 58
-Nodes searched: 10; Tiles on board: 60
-Nodes searched: 6; Tiles on board: 62
-Nodes searched: 2; Tiles on board: 64
+Nodes searched,166,Tiles on board,6
+Nodes searched,135,Tiles on board,8
+Nodes searched,199,Tiles on board,10
+Nodes searched,156,Tiles on board,12
+Nodes searched,157,Tiles on board,14
+Nodes searched,157,Tiles on board,16
+Nodes searched,128,Tiles on board,18
+Nodes searched,144,Tiles on board,20
+Nodes searched,116,Tiles on board,22
+Nodes searched,151,Tiles on board,24
+Nodes searched,129,Tiles on board,26
+Nodes searched,86,Tiles on board,28
+Nodes searched,84,Tiles on board,30
+Nodes searched,86,Tiles on board,32
+Nodes searched,90,Tiles on board,34
+Nodes searched,92,Tiles on board,36
+Nodes searched,86,Tiles on board,38
+Nodes searched,71,Tiles on board,40
+Nodes searched,53,Tiles on board,42
+Nodes searched,22,Tiles on board,44
+Nodes searched,28,Tiles on board,46
+Nodes searched,34,Tiles on board,48
+Nodes searched,42,Tiles on board,50
+Nodes searched,24,Tiles on board,52
+Nodes searched,34,Tiles on board,54
+Nodes searched,24,Tiles on board,56
+Nodes searched,15,Tiles on board,58
+Nodes searched,10,Tiles on board,60
+Nodes searched,6,Tiles on board,62
+Nodes searched,2,Tiles on board,64
 
 
 
